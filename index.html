@@ -232,7 +232,109 @@ const PRASASTI = (() => {
   async function saveProfile(){if(!adminLoggedIn){alert('Hanya admin yang dapat menyimpan profil.');return;} applyProfileForm(); try{const res=await jsonp({action:'saveProfile',token:ADMIN_TOKEN,data:JSON.stringify(profile)}); if(res.status!=='success') throw new Error(res.message||'Gagal menyimpan profil.'); alert('Profil satker berhasil disimpan.');}catch(e){alert(e.message+' Pastikan URL Web App GAS dan token benar.');}}
 
   function renderCats(){document.getElementById('prasasti-cats').innerHTML=categories.map(c=>`<button class="prasasti-cat ${c===currentCategory?'active':''}" onclick="PRASASTI.setCategory('${c}')">${c}</button>`).join('');}
-  function renderApps(){const q=(document.getElementById('prasasti-search')?.value||'').toLowerCase(); const filtered=apps.filter(a=>(currentCategory==='Semua'||a.kategori===currentCategory)&&(String(a.nama).toLowerCase().includes(q)||String(a.deskripsi).toLowerCase().includes(q)||String(a.status).toLowerCase().includes(q))); document.getElementById('prasasti-count').textContent=`${filtered.length} layanan ditampilkan`; document.getElementById('prasasti-grid').innerHTML=filtered.map(a=>{const aktif=String(a.status).toUpperCase()==='AKTIF'; const terbatas=a.kategori==='Internal KPU'||a.kategori==='Eksternal'; const label=terbatas?'<span class="prasasti-label"><i data-lucide="lock"></i>Terbatas</span>':'<span class="prasasti-label"><i data-lucide="unlock"></i>Publik</span>'; return `<article class="prasasti-card"><div class="prasasti-icon"><img src="${escapeHtml(a.icon_url||DEFAULT_PROFILE.logo_url)}" alt="${escapeHtml(a.nama)}"></div><div class="prasasti-labels">${label}<span class="prasasti-status ${aktif?'status-aktif':'status-nonaktif'}">${escapeHtml(a.status)}</span></div><h4>${escapeHtml(a.nama)}</h4><p>${escapeHtml(a.deskripsi)}</p><button class="open-btn ${aktif?'':'disabled'}" onclick="PRASASTI.openService('${encodeURIComponent(a.url||'#')}','${escapeHtml(a.kategori)}','${escapeHtml(a.status)}')">${aktif?'Buka Layanan':'Belum Aktif'}</button></article>`;}).join(''); document.getElementById('prasasti-empty').classList.toggle('hidden',filtered.length!==0); if(window.lucide) lucide.createIcons();}
+  function cardTemplate(a){
+  const aktif = String(a.status).toUpperCase() === 'AKTIF';
+  const terbatas = a.kategori === 'Internal KPU' || a.kategori === 'Eksternal';
+
+  const label = terbatas
+    ? '<span class="prasasti-label"><i data-lucide="lock"></i>Terbatas</span>'
+    : '<span class="prasasti-label"><i data-lucide="unlock"></i>Publik</span>';
+
+  return `
+    <article class="prasasti-card">
+      <div class="prasasti-icon">
+        <img src="${escapeHtml(a.icon_url || DEFAULT_PROFILE.logo_url)}" alt="${escapeHtml(a.nama)}">
+      </div>
+
+      <div class="prasasti-labels">
+        ${label}
+        <span class="prasasti-status ${aktif ? 'status-aktif' : 'status-nonaktif'}">
+          ${escapeHtml(a.status)}
+        </span>
+      </div>
+
+      <h4>${escapeHtml(a.nama)}</h4>
+      <p>${escapeHtml(a.deskripsi)}</p>
+
+      <button
+        class="open-btn ${aktif ? '' : 'disabled'}"
+        onclick="PRASASTI.openService('${encodeURIComponent(a.url || '#')}','${escapeHtml(a.kategori)}','${escapeHtml(a.status)}')">
+        ${aktif ? 'Buka Layanan' : 'Belum Aktif'}
+      </button>
+    </article>
+  `;
+}
+
+function renderApps(){
+  const q = (document.getElementById('prasasti-search')?.value || '').toLowerCase();
+
+  const filtered = apps.filter(a =>
+    (currentCategory === 'Semua' || a.kategori === currentCategory) &&
+    (
+      String(a.nama).toLowerCase().includes(q) ||
+      String(a.deskripsi).toLowerCase().includes(q) ||
+      String(a.status).toLowerCase().includes(q) ||
+      String(a.kategori).toLowerCase().includes(q)
+    )
+  );
+
+  document.getElementById('prasasti-count').textContent =
+    `${filtered.length} layanan ditampilkan`;
+
+  if(currentCategory === 'Semua' && q === ''){
+    const kategoriList = [...new Set(apps.map(a => a.kategori).filter(Boolean))];
+
+    document.getElementById('prasasti-grid').innerHTML =
+      kategoriList.map(cat => {
+
+        const items = apps
+          .filter(a => a.kategori === cat)
+          .slice(0,4);
+
+        const total = apps
+          .filter(a => a.kategori === cat)
+          .length;
+
+        return `
+          <section class="prasasti-category-section">
+
+            <div class="prasasti-category-head">
+              <div>
+                <h3>${escapeHtml(cat)}</h3>
+                <p>${total} layanan tersedia</p>
+              </div>
+
+              <button
+                class="lihat-semua-btn"
+                onclick="setCategory('${cat}')">
+                Lihat Semua
+              </button>
+            </div>
+
+            <div class="prasasti-category-grid">
+              ${items.map(cardTemplate).join('')}
+            </div>
+
+          </section>
+        `;
+      }).join('');
+
+    document.getElementById('prasasti-empty')
+      .classList.toggle('hidden', apps.length > 0);
+
+  } else {
+
+    document.getElementById('prasasti-grid').innerHTML =
+      filtered.map(cardTemplate).join('');
+
+    document.getElementById('prasasti-empty')
+      .classList.toggle('hidden', filtered.length > 0);
+  }
+
+  if(window.lucide){
+    lucide.createIcons();
+  }
+}
   function renderTable(){const table=document.getElementById('prasasti-table'); if(!table)return; table.innerHTML=apps.map(a=>`<tr><td class="name">${escapeHtml(a.nama)}</td><td>${escapeHtml(a.kategori)}</td><td>${escapeHtml(a.status)}</td><td style="max-width:230px;word-break:break-all;color:#64748b;font-size:12px">${escapeHtml(a.icon_url||'-')}</td><td style="max-width:230px;word-break:break-all;color:#64748b;font-size:12px">${escapeHtml(a.url)}</td><td><button class="small-btn edit" onclick="PRASASTI.edit('${a.id}')">Edit</button> <button class="small-btn delete" onclick="PRASASTI.remove('${a.id}')">Hapus</button></td></tr>`).join('');}
   function openService(encodedUrl,cat,status){const url=decodeURIComponent(encodedUrl); if(String(status).toUpperCase()!=='AKTIF'){alert('Layanan ini belum aktif.');return;} if(!url||url==='#'){alert('Link layanan belum tersedia.');return;} const terbatas=cat==='Internal KPU'||cat==='Eksternal'; if(!terbatas||accessGranted||adminLoggedIn) window.open(url,'_blank'); else {sessionStorage.setItem('prasasti_pending_url',url); document.getElementById('prasasti-access-modal').classList.add('active');}}
   function submitAccessPassword(){const p=document.getElementById('prasasti-access-pass').value.trim(); if(p===ACCESS_PASSWORD){sessionStorage.setItem('prasasti_access','true'); accessGranted=true; closeAccessModal(); const pending=sessionStorage.getItem('prasasti_pending_url'); if(pending){sessionStorage.removeItem('prasasti_pending_url'); window.open(pending,'_blank');} } else alert('Password salah.');}

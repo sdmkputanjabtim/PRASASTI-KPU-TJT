@@ -534,6 +534,40 @@ function renderApps(){
       .classList.add('active');
   }
 }
+  function submitAccessPassword() {
+  const p = document
+    .getElementById('prasasti-access-pass')
+    .value
+    .trim();
+
+  if (p === ACCESS_PASSWORD) {
+    sessionStorage.setItem(
+      'prasasti_access',
+      'true'
+    );
+
+    accessGranted = true;
+    closeAccessModal();
+
+    const pending =
+      sessionStorage.getItem(
+        'prasasti_pending_url'
+      );
+
+    if (pending) {
+      sessionStorage.removeItem(
+        'prasasti_pending_url'
+      );
+
+      window.open(
+        pending,
+        '_blank'
+      );
+    }
+  } else {
+    alert('Password salah.');
+  }
+}
   function closeAccessModal(){document.getElementById('prasasti-access-modal').classList.remove('active'); document.getElementById('prasasti-access-pass').value='';}
 
   function openAdminLoginOrPanel(){ if(adminLoggedIn) showAdmin(); else document.getElementById('prasasti-admin-modal').classList.add('active'); }

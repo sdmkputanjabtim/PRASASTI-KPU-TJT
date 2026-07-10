@@ -180,6 +180,108 @@ Perubahan:
   .prasasti-box{padding:20px;border-radius:22px}
   .prasasti-footer h3{font-size:16px}
 }
+  /* Statistik Admin PRASASTI */
+.prasasti-statistics {
+  margin-top: 22px;
+  padding: 22px;
+  background: #ffffff;
+  border: 1px solid #ead7d7;
+  border-radius: 18px;
+  box-shadow: 0 10px 28px rgba(73, 0, 15, 0.08);
+}
+
+.prasasti-statistics-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 18px;
+}
+
+.prasasti-statistics-header h3 {
+  margin: 0 0 4px;
+  color: #8b0000;
+  font-size: 20px;
+}
+
+.prasasti-statistics-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.prasasti-statistics-button {
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 10px;
+  background: #8b0000;
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.prasasti-statistics-button:hover {
+  background: #650000;
+}
+
+.prasasti-statistics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.prasasti-statistics-card {
+  padding: 18px;
+  border: 1px solid #efdca9;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #fff8e8, #ffffff);
+}
+
+.prasasti-statistics-card span {
+  display: block;
+  margin-bottom: 8px;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.prasasti-statistics-card strong {
+  display: block;
+  color: #8b0000;
+  font-size: 30px;
+  line-height: 1.1;
+}
+
+.prasasti-statistics-update {
+  margin: 15px 0 0;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.prasasti-statistics-error {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fff1f2;
+  color: #9f1239;
+  font-size: 12px;
+}
+
+@media (max-width: 900px) {
+  .prasasti-statistics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .prasasti-statistics-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .prasasti-statistics-grid {
+    grid-template-columns: 1fr;
+  }
+}
 </style>
 
 <div class="prasasti-wrap">
@@ -194,7 +296,57 @@ Perubahan:
 
 <section id="prasasti-admin" class="prasasti-admin"><div class="prasasti-container">
 <div class="prasasti-heading"><div><h3>Dashboard Admin</h3><p>Kelola layanan dan profil satker PRASASTI.</p></div></div>
-<div class="admin-actions"><button class="prasasti-btn btn-gold" onclick="PRASASTI.openModal()">Tambah Layanan</button><button class="prasasti-btn btn-outline" onclick="PRASASTI.adminLogout()">Keluar Admin</button><button class="prasasti-btn btn-maroon" onclick="PRASASTI.showPublic()">Lihat Portal</button></div>
+
+  <section class="prasasti-statistics">
+  <div class="prasasti-statistics-header">
+    <div>
+      <h3>Statistik Portal PRASASTI</h3>
+      <p id="stats-period">30 hari terakhir</p>
+    </div>
+
+    <button
+      type="button"
+      class="prasasti-statistics-button"
+      onclick="loadPrasastiStats()"
+    >
+      Perbarui Statistik
+    </button>
+  </div>
+
+  <div class="prasasti-statistics-grid">
+    <div class="prasasti-statistics-card">
+      <span>Pengunjung Aktif</span>
+      <strong id="stats-users">—</strong>
+    </div>
+
+    <div class="prasasti-statistics-card">
+      <span>Jumlah Kunjungan</span>
+      <strong id="stats-sessions">—</strong>
+    </div>
+
+    <div class="prasasti-statistics-card">
+      <span>Tampilan Halaman</span>
+      <strong id="stats-pageviews">—</strong>
+    </div>
+
+    <div class="prasasti-statistics-card">
+      <span>Klik Layanan</span>
+      <strong id="stats-clicks">—</strong>
+    </div>
+  </div>
+
+  <p class="prasasti-statistics-update">
+    Terakhir diperbarui:
+    <span id="stats-updated">—</span>
+  </p>
+
+  <p
+    id="stats-error"
+    class="prasasti-statistics-error"
+    hidden
+  ></p>
+</section>
+  <div class="admin-actions"><button class="prasasti-btn btn-gold" onclick="PRASASTI.openModal()">Tambah Layanan</button><button class="prasasti-btn btn-outline" onclick="PRASASTI.adminLogout()">Keluar Admin</button><button class="prasasti-btn btn-maroon" onclick="PRASASTI.showPublic()">Lihat Portal</button></div>
 <div class="admin-tabs"><button id="tab-layanan" class="admin-tab active" onclick="PRASASTI.showAdminTab('layanan')">Data Layanan</button><button id="tab-profil" class="admin-tab" onclick="PRASASTI.showAdminTab('profil')">Pengaturan Profil</button></div>
 <div id="panel-layanan" class="admin-panel active"><div class="prasasti-table-wrap"><table class="prasasti-table"><thead><tr><th>Nama</th><th>Kategori</th><th>Status</th><th>Logo URL</th><th>URL Layanan</th><th>Aksi</th></tr></thead><tbody id="prasasti-table"></tbody></table></div></div>
 <div id="panel-profil" class="admin-panel"><div class="profile-card"><div class="profile-grid"><div class="profile-preview"><img id="profile-preview-logo" src="https://jdih.kpu.go.id/assets/img/logo-background-kpu.png" alt="Preview Logo"><b>Preview Profil</b></div><div><label>Logo URL Satker</label><input id="profile-logo" class="input" placeholder="https://...logo.png"><label>Nama Satker</label><input id="profile-nama" class="input" placeholder="Nama satuan kerja"><label>Alamat Satker</label><textarea id="profile-alamat" class="textarea" placeholder="Alamat lengkap satuan kerja"></textarea><div class="modal-actions"><button class="btn-maroon" onclick="PRASASTI.saveProfile()">Simpan Profil</button><button class="btn-light" onclick="PRASASTI.applyProfileForm()">Refresh Preview</button></div></div></div></div></div>
@@ -368,4 +520,128 @@ function renderApps(){
   return {init,renderApps,setCategory,resetSearch,openService,submitAccessPassword,closeAccessModal,loginAdmin,closeAdminLogin,adminLogout,showAdmin,showPublic,openModal,closeModal,save,edit,remove,showAdminTab,saveProfile,applyProfileForm};
 })();
 PRASASTI.init();
+</script>
+
+<script>
+const PRASASTI_STATS_API =
+  'https://script.google.com/macros/s/AKfycby9ODZd5PpaLX9q5mIIecarAqZwABEn6JwRJAYhLsh5H7G3px1MtYsZc8c4SNJkP8Z0/exec';
+
+function formatPrasastiStatistic(value) {
+  return new Intl.NumberFormat('id-ID').format(
+    Number(value || 0)
+  );
+}
+
+function setPrasastiStatsLoading() {
+  [
+    'stats-users',
+    'stats-sessions',
+    'stats-pageviews',
+    'stats-clicks'
+  ].forEach(function (id) {
+    const element = document.getElementById(id);
+
+    if (element) {
+      element.textContent = '...';
+    }
+  });
+}
+
+window.loadPrasastiStats = function () {
+  setPrasastiStatsLoading();
+
+  const errorElement =
+    document.getElementById('stats-error');
+
+  if (errorElement) {
+    errorElement.hidden = true;
+    errorElement.textContent = '';
+  }
+
+  const oldScript =
+    document.getElementById('prasasti-stats-script');
+
+  if (oldScript) {
+    oldScript.remove();
+  }
+
+  const script = document.createElement('script');
+
+  script.id = 'prasasti-stats-script';
+
+  script.src =
+    PRASASTI_STATS_API +
+    '?action=analyticsStats&_=' +
+    Date.now();
+
+  script.onerror = function () {
+    if (errorElement) {
+      errorElement.hidden = false;
+      errorElement.textContent =
+        'Statistik belum dapat dimuat. Silakan coba kembali.';
+    }
+  };
+
+  document.body.appendChild(script);
+};
+
+window.prasastiStatsCallback = function (response) {
+  if (
+    !response ||
+    response.success !== true ||
+    !response.data
+  ) {
+    const errorElement =
+      document.getElementById('stats-error');
+
+    if (errorElement) {
+      errorElement.hidden = false;
+      errorElement.textContent =
+        response && response.message
+          ? response.message
+          : 'Data statistik tidak tersedia.';
+    }
+
+    return;
+  }
+
+  const data = response.data;
+
+  const users = document.getElementById('stats-users');
+  const sessions = document.getElementById('stats-sessions');
+  const pageViews = document.getElementById('stats-pageviews');
+  const clicks = document.getElementById('stats-clicks');
+  const period = document.getElementById('stats-period');
+  const updated = document.getElementById('stats-updated');
+
+  if (users) {
+    users.textContent =
+      formatPrasastiStatistic(data.activeUsers);
+  }
+
+  if (sessions) {
+    sessions.textContent =
+      formatPrasastiStatistic(data.sessions);
+  }
+
+  if (pageViews) {
+    pageViews.textContent =
+      formatPrasastiStatistic(data.pageViews);
+  }
+
+  if (clicks) {
+    clicks.textContent =
+      formatPrasastiStatistic(data.serviceClicks);
+  }
+
+  if (period) {
+    period.textContent =
+      data.period || '30 hari terakhir';
+  }
+
+  if (updated) {
+    updated.textContent =
+      data.updatedAt || '—';
+  }
+};
 </script>

@@ -395,7 +395,7 @@ const PRASASTI = (() => {
   function renderCats(){document.getElementById('prasasti-cats').innerHTML=categories.map(c=>`<button class="prasasti-cat ${c===currentCategory?'active':''}" onclick="PRASASTI.setCategory('${c}')">${c}</button>`).join('');}
   function cardTemplate(a){
   const aktif = String(a.status).toUpperCase() === 'AKTIF';
-  if(typeof window.gtag==='function'){window.gtag('event','service_click',{service_category:cat||'Tidak diketahui'});}const terbatas = a.kategori === 'Internal KPU' || a.kategori === 'Eksternal';
+  const terbatas = a.kategori === 'Internal KPU' || a.kategori === 'Eksternal';
 
   const label = terbatas
     ? '<span class="prasasti-label"><i data-lucide="lock"></i>Terbatas</span>'
@@ -497,8 +497,43 @@ function renderApps(){
   }
 }
   function renderTable(){const table=document.getElementById('prasasti-table'); if(!table)return; table.innerHTML=apps.map(a=>`<tr><td class="name">${escapeHtml(a.nama)}</td><td>${escapeHtml(a.kategori)}</td><td>${escapeHtml(a.status)}</td><td style="max-width:230px;word-break:break-all;color:#64748b;font-size:12px">${escapeHtml(a.icon_url||'-')}</td><td style="max-width:230px;word-break:break-all;color:#64748b;font-size:12px">${escapeHtml(a.url)}</td><td><button class="small-btn edit" onclick="PRASASTI.edit('${a.id}')">Edit</button> <button class="small-btn delete" onclick="PRASASTI.remove('${a.id}')">Hapus</button></td></tr>`).join('');}
-  function openService(encodedUrl,cat,status){const url=decodeURIComponent(encodedUrl); if(String(status).toUpperCase()!=='AKTIF'){alert('Layanan ini belum aktif.');return;} if(!url||url==='#'){alert('Link layanan belum tersedia.');return;} const terbatas=cat==='Internal KPU'||cat==='Eksternal'; if(!terbatas||accessGranted||adminLoggedIn) window.open(url,'_blank'); else {sessionStorage.setItem('prasasti_pending_url',url); document.getElementById('prasasti-access-modal').classList.add('active');}}
-  function submitAccessPassword(){const p=document.getElementById('prasasti-access-pass').value.trim(); if(p===ACCESS_PASSWORD){sessionStorage.setItem('prasasti_access','true'); accessGranted=true; closeAccessModal(); const pending=sessionStorage.getItem('prasasti_pending_url'); if(pending){sessionStorage.removeItem('prasasti_pending_url'); window.open(pending,'_blank');} } else alert('Password salah.');}
+  function openService(encodedUrl, cat, status) {
+  const url = decodeURIComponent(encodedUrl);
+
+  if (String(status).toUpperCase() !== 'AKTIF') {
+    alert('Layanan ini belum aktif.');
+    return;
+  }
+
+  if (!url || url === '#') {
+    alert('Link layanan belum tersedia.');
+    return;
+  }
+
+  // Mencatat klik layanan ke Google Analytics
+  if (typeof window.gtag === 'function') {
+    window.gtag('event', 'service_click', {
+      service_category: cat || 'Tidak diketahui'
+    });
+  }
+
+  const terbatas =
+    cat === 'Internal KPU' ||
+    cat === 'Eksternal';
+
+  if (!terbatas || accessGranted || adminLoggedIn) {
+    window.open(url, '_blank');
+  } else {
+    sessionStorage.setItem(
+      'prasasti_pending_url',
+      url
+    );
+
+    document
+      .getElementById('prasasti-access-modal')
+      .classList.add('active');
+  }
+}
   function closeAccessModal(){document.getElementById('prasasti-access-modal').classList.remove('active'); document.getElementById('prasasti-access-pass').value='';}
 
   function openAdminLoginOrPanel(){ if(adminLoggedIn) showAdmin(); else document.getElementById('prasasti-admin-modal').classList.add('active'); }

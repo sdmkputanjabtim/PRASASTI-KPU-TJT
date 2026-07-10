@@ -395,7 +395,7 @@ const PRASASTI = (() => {
   function renderCats(){document.getElementById('prasasti-cats').innerHTML=categories.map(c=>`<button class="prasasti-cat ${c===currentCategory?'active':''}" onclick="PRASASTI.setCategory('${c}')">${c}</button>`).join('');}
   function cardTemplate(a){
   const aktif = String(a.status).toUpperCase() === 'AKTIF';
-  const terbatas = a.kategori === 'Internal KPU' || a.kategori === 'Eksternal';
+  if(typeof window.gtag==='function'){window.gtag('event','service_click',{service_category:cat||'Tidak diketahui'});}const terbatas = a.kategori === 'Internal KPU' || a.kategori === 'Eksternal';
 
   const label = terbatas
     ? '<span class="prasasti-label"><i data-lucide="lock"></i>Terbatas</span>'

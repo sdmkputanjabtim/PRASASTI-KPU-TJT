@@ -2,7 +2,7 @@
 Perubahan:
 - Header tanpa tombol Pegawai/Admin.
 - Login admin melalui link khusus: tambahkan #admin pada URL portal.
-- Internal KPU dan Eksternal hanya meminta password, tanpa username.
+- Internal KPU dan Eksternal dapat dibuka langsung tanpa password pegawai.
 - Ikon/logo tiap menu menggunakan URL gambar.
 -->
 <!-- Google tag (gtag.js) -->
@@ -161,7 +161,6 @@ Perubahan:
 .prasasti-box h3{margin:0;color:var(--maroon);font-size:22px;font-weight:900}.prasasti-box p{margin:5px 0 18px;color:#64748b;font-size:12px;line-height:1.6}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.input,.select,.textarea{width:100%;border:0;outline:none;background:#f8fafc;border-radius:15px;padding:14px;font-family:inherit;font-size:13px;margin-bottom:10px}.textarea{min-height:92px;resize:vertical}.input:focus,.select:focus,.textarea:focus{box-shadow:0 0 0 2px var(--gold)}
 .modal-actions{display:flex;gap:8px;flex-wrap:wrap}.modal-actions button{flex:1;min-width:120px;border:0;border-radius:15px;padding:14px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer}
-.access-note{background:var(--soft);color:var(--maroon);font-size:11px;font-weight:800;border-radius:14px;padding:11px 13px;margin-bottom:12px;line-height:1.5}
 .admin-link-note{font-size:11px;color:#64748b;margin-top:10px;text-align:center}
 @media(max-width:760px){
   .prasasti-brand p{display:none}
@@ -355,8 +354,6 @@ Perubahan:
 <footer class="prasasti-footer"><img id="footer-logo" src="https://jdih.kpu.go.id/assets/img/logo-background-kpu.png" alt="Logo"><h3 id="footer-name">KPU Kabupaten Tanjung Jabung Timur</h3><p id="footer-address">Komplek Perkantoran Bukit Menderang, Kelurahan Rano, Kecamatan Muara Sabak Barat, Kabupaten Tanjung Jabung Timur, Provinsi Jambi 36761</p><div class="prasasti-line"></div><div class="prasasti-copy">© 2026 PRASASTI KPU Tanjung Jabung Timur. All Rights Reserved.</div></footer>
 </div>
 
-<div id="prasasti-access-modal" class="prasasti-modal"><div class="prasasti-box"><h3>Akses Terbatas</h3><p>Layanan Internal KPU dan Eksternal hanya dapat dibuka dengan password pegawai.</p><div class="access-note">Masukkan password akses pegawai untuk melanjutkan.</div><input id="prasasti-access-pass" class="input" type="password" placeholder="Password akses"><div class="modal-actions"><button class="btn-maroon" onclick="PRASASTI.submitAccessPassword()">Masuk</button><button class="btn-light" onclick="PRASASTI.closeAccessModal()">Batal</button></div></div></div>
-
 <div id="prasasti-admin-modal" class="prasasti-modal"><div class="prasasti-box"><h3>Login Admin</h3><p>Halaman ini hanya untuk pengelola PRASASTI.</p><input id="prasasti-admin-user" class="input" placeholder="Username admin"><input id="prasasti-admin-pass" class="input" type="password" placeholder="Password admin"><div class="modal-actions"><button class="btn-maroon" onclick="PRASASTI.loginAdmin()">Masuk</button><button class="btn-light" onclick="PRASASTI.closeAdminLogin()">Batal</button></div><div class="admin-link-note">Link khusus admin: tambahkan <b>#admin</b> di belakang URL portal.</div></div></div>
 
 <div id="prasasti-app-modal" class="prasasti-modal"><div class="prasasti-box"><h3 id="prasasti-modal-title">Tambah Layanan</h3><p>Isi data layanan digital yang akan ditampilkan.</p><input id="prasasti-id" type="hidden"><div class="form-grid"><input id="prasasti-nama" class="input" placeholder="Nama layanan"><select id="prasasti-kategori" class="select"><option>Publik</option><option>Internal KPU</option><option>Eksternal</option></select></div><div class="form-grid"><input id="prasasti-status" class="input" placeholder="Status: AKTIF/NONAKTIF"><input id="prasasti-icon-url" class="input" placeholder="Logo/Icon URL"></div><input id="prasasti-url" class="input" placeholder="URL layanan"><textarea id="prasasti-deskripsi" class="textarea" placeholder="Deskripsi singkat"></textarea><div class="modal-actions"><button class="btn-maroon" onclick="PRASASTI.save()">Simpan</button><button class="btn-light" onclick="PRASASTI.closeModal()">Batal</button></div></div></div>
@@ -365,7 +362,6 @@ Perubahan:
 const PRASASTI = (() => {
   const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby9ODZd5PpaLX9q5mIIecarAqZwABEn6JwRJAYhLsh5H7G3px1MtYsZc8c4SNJkP8Z0/exec';
   const ADMIN_TOKEN = 'prasasti2026tjt';
-  const ACCESS_PASSWORD = 'kputjt2026';
   const ADMIN_USERNAME = 'admin';
   const ADMIN_PASSWORD = 'admin123';
 
@@ -377,7 +373,6 @@ const PRASASTI = (() => {
   const FALLBACK_DATA = [{"id": "1", "nama": "Website Resmi KPU Kabupaten Tanjung Jabung Timur", "kategori": "Publik", "url": "https://kab-tanjungjabungtimur.kpu.go.id/", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Website resmi KPU Kabupaten Tanjung Jabung Timur.", "penanggung_jawab": ""}, {"id": "2", "nama": "E-PPID", "kategori": "Publik", "url": "https://tanjabtimkabppid.kpu.go.id/", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Layanan permohonan informasi publik secara online.", "penanggung_jawab": ""}, {"id": "3", "nama": "JDIH", "kategori": "Publik", "url": "https://jdih.kpu.go.id/jambi/tanjabtim", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Jaringan dokumentasi dan informasi hukum KPU.", "penanggung_jawab": ""}, {"id": "4", "nama": "Layanan Pengaduan", "kategori": "Publik", "url": "https://docs.google.com/forms/d/1qHH6GwggDj4gajcLKPOYSLgdqhH2OXJDtDu7ebH0kAA/viewform?edit_requested", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Sarana penyampaian aduan masyarakat kepada KPU.", "penanggung_jawab": ""}, {"id": "5", "nama": "Cek DPT Online", "kategori": "Publik", "url": "https://cekdptonline.kpu.go.id/", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Layanan pengecekan data pemilih tetap secara online.", "penanggung_jawab": ""}, {"id": "6", "nama": "InfoPemilu", "kategori": "Publik", "url": "https://infopemilu.kpu.go.id/", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Informasi kepemiluan, tahapan, data, dan hasil Pemilu.", "penanggung_jawab": ""}, {"id": "7", "nama": "Instagram KPU Tanjab Timur", "kategori": "Publik", "url": "https://www.instagram.com/kpu_tanjabtim/", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Akun Instagram resmi KPU Kabupaten Tanjung Jabung Timur.", "penanggung_jawab": ""}, {"id": "8", "nama": "Facebook KPU Tanjab Timur", "kategori": "Publik", "url": "https://www.facebook.com/KpuTanjabTimur/", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Akun Facebook resmi KPU Kabupaten Tanjung Jabung Timur.", "penanggung_jawab": ""}, {"id": "9", "nama": "TikTok KPU Tanjab Timur", "kategori": "Publik", "url": "https://www.tiktok.com/@kpu.tanjabtimur", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Akun TikTok resmi KPU Kabupaten Tanjung Jabung Timur.", "penanggung_jawab": ""}, {"id": "10", "nama": "YouTube KPU Tanjab Timur", "kategori": "Publik", "url": "https://www.youtube.com/@kputanjabtimchannel933", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Kanal YouTube resmi KPU Kabupaten Tanjung Jabung Timur.", "penanggung_jawab": ""}, {"id": "11", "nama": "Instagram JDIH KPU Tanjab Timur", "kategori": "Publik", "url": "https://www.instagram.com/jdihkpu_tanjabtim/", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Akun Instagram JDIH KPU Kabupaten Tanjung Jabung Timur.", "penanggung_jawab": ""}, {"id": "12", "nama": "Threads JDIH KPU Tanjab Timur", "kategori": "Publik", "url": "https://www.threads.com/@jdihkpu_tanjabtim", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Akun Threads JDIH KPU Kabupaten Tanjung Jabung Timur.", "penanggung_jawab": ""}, {"id": "13", "nama": "Facebook JDIH KPU Tanjab Timur", "kategori": "Publik", "url": "https://www.facebook.com/people/Jdihkpu-Tanjabtim/100079007105193/", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Akun Facebook JDIH KPU Kabupaten Tanjung Jabung Timur.", "penanggung_jawab": ""}, {"id": "14", "nama": "SIPOL", "kategori": "Internal KPU", "url": "https://sipol.kpu.go.id/", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Sistem Informasi Partai Politik.", "penanggung_jawab": ""}, {"id": "15", "nama": "SIMPAW", "kategori": "Internal KPU", "url": "https://simpaw.kpu.go.id/login/", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Sistem Informasi Manajemen Penggantian Antar Waktu.", "penanggung_jawab": ""}, {"id": "16", "nama": "SIKUM", "kategori": "Internal KPU", "url": "https://sikum.kpu.go.id/", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Sistem Informasi Hukum KPU.", "penanggung_jawab": ""}, {"id": "17", "nama": "SILON DPRD", "kategori": "Internal KPU", "url": "https://silon.kpu.go.id/", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Sistem Informasi Pencalonan Anggota DPRD.", "penanggung_jawab": ""}, {"id": "18", "nama": "SILON KADA", "kategori": "Internal KPU", "url": "https://silonpilkada.kpu.go.id/", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Sistem Informasi Pencalonan Kepala Daerah.", "penanggung_jawab": ""}, {"id": "19", "nama": "SIREKAP", "kategori": "Internal KPU", "url": "#", "status": "NONAKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Sistem Informasi Rekapitulasi hasil penghitungan suara.", "penanggung_jawab": ""}, {"id": "20", "nama": "SPIP", "kategori": "Internal KPU", "url": "https://e-spip.kpu.go.id/spip", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Sistem Pengendalian Intern Pemerintah.", "penanggung_jawab": ""}, {"id": "21", "nama": "SIDAKAM", "kategori": "Internal KPU", "url": "#", "status": "NONAKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Sistem Informasi Dana Kampanye.", "penanggung_jawab": ""}, {"id": "22", "nama": "SIDAPIL", "kategori": "Internal KPU", "url": "https://sidapil.kpu.go.id/", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Sistem Informasi Daerah Pemilihan.", "penanggung_jawab": ""}, {"id": "23", "nama": "SIDALIH", "kategori": "Internal KPU", "url": "https://tanjabtimkab.kpu.go.id/login", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Sistem Informasi Data Pemilih.", "penanggung_jawab": ""}, {"id": "24", "nama": "e-Coklit", "kategori": "Internal KPU", "url": "https://e-coklit-dashboard.vercel.app/", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Elektronik Pencocokan dan Penelitian data pemilih.", "penanggung_jawab": ""}, {"id": "25", "nama": "SILOG", "kategori": "Internal KPU", "url": "https://silog-pilkada.kpu.go.id/login", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Sistem Informasi Logistik Pemilu/Pemilihan.", "penanggung_jawab": ""}, {"id": "26", "nama": "SITAB", "kategori": "Internal KPU", "url": "https://sitab.kpu.go.id/", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Sistem Informasi Pertanggungjawaban Anggaran Belanja.", "penanggung_jawab": ""}, {"id": "27", "nama": "SAKTI", "kategori": "Eksternal", "url": "https://sakti.kemenkeu.go.id/", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Sistem Aplikasi Keuangan Tingkat Instansi.", "penanggung_jawab": ""}, {"id": "28", "nama": "SIMPEL", "kategori": "Internal KPU", "url": "https://simpel.kpu.go.id/auth", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Sistem Informasi Manajemen Pelayanan.", "penanggung_jawab": ""}, {"id": "29", "nama": "SIMPEG", "kategori": "Internal KPU", "url": "https://simpeg.kpu.go.id/login", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Sistem Informasi Manajemen Kepegawaian.", "penanggung_jawab": ""}, {"id": "30", "nama": "SIAKBA", "kategori": "Internal KPU", "url": "https://siakba.kpu.go.id/", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Sistem Informasi Anggota KPU dan Badan Ad Hoc.", "penanggung_jawab": ""}, {"id": "31", "nama": "SIPARMAS", "kategori": "Internal KPU", "url": "https://siparmas.kpu.go.id/", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Sistem Informasi Partisipasi Masyarakat.", "penanggung_jawab": ""}, {"id": "32", "nama": "SRIKANDI", "kategori": "Eksternal", "url": "https://srikandi.arsip.go.id/", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Sistem Informasi Kearsipan Dinamis Terintegrasi.", "penanggung_jawab": ""}, {"id": "33", "nama": "SIMAN", "kategori": "Eksternal", "url": "https://siman.kemenkeu.go.id/", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Sistem Informasi Manajemen Aset Negara.", "penanggung_jawab": ""}, {"id": "34", "nama": "MYINTRESS", "kategori": "Eksternal", "url": "https://myintress.kemenkeu.go.id/", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "My Integrated Treasury System.", "penanggung_jawab": ""}, {"id": "35", "nama": "GAJI WEB", "kategori": "Eksternal", "url": "https://gaji.kemenkeu.go.id/", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Aplikasi pengelolaan gaji berbasis web.", "penanggung_jawab": ""}, {"id": "36", "nama": "QLOLA CASH MANAGEMENT", "kategori": "Eksternal", "url": "https://bricams.bri.co.id/main-page", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Layanan cash management untuk transaksi perbankan.", "penanggung_jawab": ""}, {"id": "37", "nama": "CORETAX", "kategori": "Eksternal", "url": "https://coretaxdjp.pajak.go.id/", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Sistem administrasi perpajakan DJP Online.", "penanggung_jawab": ""}, {"id": "38", "nama": "SIRUP", "kategori": "Eksternal", "url": "https://sirup.inaproc.id/sirup/loginctr/index", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Sistem Informasi Rencana Umum Pengadaan.", "penanggung_jawab": ""}, {"id": "39", "nama": "Katalog INAPROC", "kategori": "Eksternal", "url": "https://katalog.inaproc.id/", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Katalog elektronik pengadaan nasional.", "penanggung_jawab": ""}, {"id": "40", "nama": "MY ASN", "kategori": "Eksternal", "url": "https://myasn.bkn.go.id/", "status": "AKTIF", "icon_url": "https://jdih.kpu.go.id/assets/img/logo-background-kpu.png", "deskripsi": "Portal layanan manajemen ASN terpadu.", "penanggung_jawab": ""}];
   const categories = ['Semua','Publik','Internal KPU','Eksternal'];
   let currentCategory = 'Semua', apps = [], profile = DEFAULT_PROFILE;
-  let accessGranted = sessionStorage.getItem('prasasti_access') === 'true';
   let adminLoggedIn = sessionStorage.getItem('prasasti_admin') === 'true';
 
   function escapeHtml(s){return String(s ?? '').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
@@ -395,11 +390,7 @@ const PRASASTI = (() => {
   function renderCats(){document.getElementById('prasasti-cats').innerHTML=categories.map(c=>`<button class="prasasti-cat ${c===currentCategory?'active':''}" onclick="PRASASTI.setCategory('${c}')">${c}</button>`).join('');}
   function cardTemplate(a){
   const aktif = String(a.status).toUpperCase() === 'AKTIF';
-  const terbatas = a.kategori === 'Internal KPU' || a.kategori === 'Eksternal';
-
-  const label = terbatas
-    ? '<span class="prasasti-label"><i data-lucide="lock"></i>Terbatas</span>'
-    : '<span class="prasasti-label"><i data-lucide="unlock"></i>Publik</span>';
+  const label = `<span class="prasasti-label"><i data-lucide="layers"></i>${escapeHtml(a.kategori || 'Layanan')}</span>`;
 
   return `
     <article class="prasasti-card">
@@ -517,58 +508,9 @@ function renderApps(){
     });
   }
 
-  const terbatas =
-    cat === 'Internal KPU' ||
-    cat === 'Eksternal';
-
-  if (!terbatas || accessGranted || adminLoggedIn) {
-    window.open(url, '_blank');
-  } else {
-    sessionStorage.setItem(
-      'prasasti_pending_url',
-      url
-    );
-
-    document
-      .getElementById('prasasti-access-modal')
-      .classList.add('active');
-  }
+  // Semua kategori dibuka langsung tanpa password pegawai
+  window.open(url, '_blank', 'noopener,noreferrer');
 }
-  function submitAccessPassword() {
-  const p = document
-    .getElementById('prasasti-access-pass')
-    .value
-    .trim();
-
-  if (p === ACCESS_PASSWORD) {
-    sessionStorage.setItem(
-      'prasasti_access',
-      'true'
-    );
-
-    accessGranted = true;
-    closeAccessModal();
-
-    const pending =
-      sessionStorage.getItem(
-        'prasasti_pending_url'
-      );
-
-    if (pending) {
-      sessionStorage.removeItem(
-        'prasasti_pending_url'
-      );
-
-      window.open(
-        pending,
-        '_blank'
-      );
-    }
-  } else {
-    alert('Password salah.');
-  }
-}
-  function closeAccessModal(){document.getElementById('prasasti-access-modal').classList.remove('active'); document.getElementById('prasasti-access-pass').value='';}
 
   function openAdminLoginOrPanel(){ if(adminLoggedIn) showAdmin(); else document.getElementById('prasasti-admin-modal').classList.add('active'); }
   function loginAdmin(){const u=document.getElementById('prasasti-admin-user').value.trim(),p=document.getElementById('prasasti-admin-pass').value.trim(); if(u===ADMIN_USERNAME&&p===ADMIN_PASSWORD){sessionStorage.setItem('prasasti_admin','true');adminLoggedIn=true;closeAdminLogin();showAdmin();}else alert('Login admin gagal.');}
@@ -585,8 +527,8 @@ function renderApps(){
   function showPublic(){document.getElementById('prasasti-admin').style.display='none';document.getElementById('prasasti-public').style.display='block'; if(location.hash==='#admin') history.replaceState(null,'',location.pathname+location.search); renderApps();}
   function setCategory(c){currentCategory=c;renderCats();renderApps();}
   function resetSearch(){document.getElementById('prasasti-search').value='';currentCategory='Semua';renderCats();renderApps();}
-  function init(){renderCats();loadAll();if(window.lucide) lucide.createIcons(); window.addEventListener('hashchange',()=>{if(location.hash==='#admin') openAdminLoginOrPanel();});}
-  return {init,renderApps,setCategory,resetSearch,openService,submitAccessPassword,closeAccessModal,loginAdmin,closeAdminLogin,adminLogout,showAdmin,showPublic,openModal,closeModal,save,edit,remove,showAdminTab,saveProfile,applyProfileForm};
+  function init(){sessionStorage.removeItem('prasasti_access');sessionStorage.removeItem('prasasti_pending_url');renderCats();loadAll();if(window.lucide) lucide.createIcons(); window.addEventListener('hashchange',()=>{if(location.hash==='#admin') openAdminLoginOrPanel();});}
+  return {init,renderApps,setCategory,resetSearch,openService,loginAdmin,closeAdminLogin,adminLogout,showAdmin,showPublic,openModal,closeModal,save,edit,remove,showAdminTab,saveProfile,applyProfileForm};
 })();
 PRASASTI.init();
 </script>
